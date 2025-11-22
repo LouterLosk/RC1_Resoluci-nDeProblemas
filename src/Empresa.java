@@ -1,7 +1,9 @@
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class Empresa {
@@ -14,10 +16,10 @@ public class Empresa {
         producto = new ArrayList<>();
         espacioAlmacenamiento = 600;
         presupuesto = 200000.0;
-        Producto pr = new Producto(23,"Cama","23232323","colchon",21,21,"23/02/2002");
-        Producto pr2 = new Producto(23,"Cama","24242424","colchon",20,21,"23/02/2002");
-        Producto pr3 = new Producto(23,"Gata","33233233","colchon",19,21,"23/02/2002");
-        ProductoComestible pnc = new ProductoComestible(23,"Helado","2233","es un helado",23,23,"20/10/2001","10/20/2030",true);
+        Producto pr = new Producto(23,"Cama","23232323","colchon",21,0,"23/02/2002");
+        Producto pr2 = new Producto(23,"Cama","24242424","colchon",20,0,"23/02/2002");
+        Producto pr3 = new Producto(23,"Gata","33233233","colchon",19,0,"23/02/2002");
+        ProductoComestible pnc = new ProductoComestible(23,"Helado","2233","es un helado",23,0,"20/10/2001","10/20/2030",true);
         validacionEspacio(pr.getInventario());
         validacionEspacio(pr2.getInventario());
         validacionEspacio(pr3.getInventario());
@@ -202,14 +204,17 @@ public class Empresa {
 
     /**Metodo de mustra del producto*/
     public void showProducto(int a){
+
         if (a == -2 ){
             return;
         }
         if (a == -3){
-            for (int i = 0; i<producto.size();i++){
+            if (producto.isEmpty()){
+                System.out.println("No hay productos almacenados.");
+            }else{ for (int i = 0; i<producto.size();i++){
                 System.out.println(producto.get(i));
             }
-            return;
+                return;}
         }
         try {
             System.out.println(producto.get(a));
@@ -321,10 +326,16 @@ public class Empresa {
         System.out.println("Ingrese la fecha de reabastecimiento de esta compra:");
         String nuevaFechaReab = ingresoFecha();
         p.setFechaReab(nuevaFechaReab);
+        DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate FechaReab = LocalDate.parse(nuevaFechaReab,f);
+        LocalDate fechaHoy = LocalDate.now();
 
+        long dias = ChronoUnit.DAYS.between(fechaHoy, FechaReab);
+        p.setTiempoEntrega((int)dias);
         System.out.println("Compra registrada correctamente.");
         System.out.println("Inventario actual: " + p.getInventario());
         System.out.println("Fecha de reabastecimiento: " + p.getFechaReab());
+        System.out.println("Tiempo entrega: " + p.getTiempoEntrega()+" dias");
     }
 
     /**Venta de producto*/
@@ -388,6 +399,231 @@ public class Empresa {
         System.out.println("Espacio disponible en el almacén: " + espacioAlmacenamiento);
     }
 
+    public void editarProductoPorId() {
+        if (producto.isEmpty()) {
+            System.out.println("No hay productos registrados.");
+            return;
+        }
+
+        System.out.print("Ingrese el ID del producto que desea editar: ");
+        String idBuscado = sc.nextLine().trim();
+
+        int idx = busquedaId(idBuscado);
+        if (idx == -1) {
+            System.out.println("No se encontró ningún producto con el ID: " + idBuscado);
+            return;
+        }
+
+        Producto p = producto.get(idx);
+
+        System.out.println("Producto encontrado:");
+        showProducto(idx);
+
+        boolean salir = false;
+        while (!salir) {
+            System.out.println("\n¿Qué desea editar?");
+            System.out.println("1. Nombre");
+            System.out.println("2. Precio");
+            System.out.println("3. Descripción");
+            System.out.println("4. Inventario");
+            System.out.println("5. Fecha de reabastecimiento");
+            System.out.println("6. Tiempo de entrega");
+
+            // Opciones adicionales según el tipo de producto
+            if (p instanceof ProductoComestible) {
+                System.out.println("7. Fecha de caducidad");
+                System.out.println("8. Requiere refrigeración");
+            } else if (p instanceof ProductoNoComestible) {
+                System.out.println("7. Material");
+                System.out.println("8. Almacenamiento especial");
+            }
+
+            System.out.println("0. Terminar edición");
+            System.out.print("Opción: ");
+
+            int opcion;
+            if (sc.hasNextInt()) {
+                opcion = sc.nextInt();
+                sc.nextLine(); // limpiar ENTER
+            } else {
+                System.out.println("Opción inválida. Intente de nuevo.");
+                sc.next(); // limpiar basura
+                continue;
+            }
+
+            switch (opcion) {
+                case 1: // Nombre
+                    System.out.println("Nombre actual: " + p.getNombre());
+                    System.out.print("Nuevo nombre: ");
+                    String nuevoNombre = sc.nextLine();
+                    p.setNombre(nuevoNombre);
+                    System.out.println("Nombre actualizado.");
+                    break;
+
+                case 2: // Precio
+                    System.out.println("Precio actual: " + p.getPrecio());
+                    double nuevoPrecio;
+                    while (true) {
+                        System.out.print("Nuevo precio: ");
+                        if (sc.hasNextDouble()) {
+                            nuevoPrecio = sc.nextDouble();
+                            sc.nextLine();
+                            if (nuevoPrecio > 0) {
+                                break;
+                            } else {
+                                System.out.println("El precio debe ser mayor que 0.");
+                            }
+                        } else {
+                            System.out.println("Ingrese un número válido.");
+                            sc.next();
+                        }
+                    }
+                    p.setPrecio(nuevoPrecio);
+                    System.out.println("Precio actualizado.");
+                    break;
+
+                case 3: // Descripción
+                    System.out.println("Descripción actual: " + p.getDescripcion());
+                    System.out.print("Nueva descripción: ");
+                    String nuevaDesc = sc.nextLine();
+                    p.setDescripcion(nuevaDesc);
+                    System.out.println("Descripción actualizada.");
+                    break;
+
+                case 4: { // Inventario
+                    System.out.println("Inventario actual: " + p.getInventario());
+                    int nuevoInv;
+                    while (true) {
+                        System.out.print("Nuevo inventario (>= 0): ");
+                        if (sc.hasNextInt()) {
+                            nuevoInv = sc.nextInt();
+                            sc.nextLine();
+                            if (nuevoInv >= 0) {
+                                break;
+                            } else {
+                                System.out.println("El inventario no puede ser negativo.");
+                            }
+                        } else {
+                            System.out.println("Ingrese un número entero válido.");
+                            sc.next();
+                        }
+                    }
+
+                    int invActual = p.getInventario();
+                    if (nuevoInv == invActual) {
+                        System.out.println("El inventario no ha cambiado.");
+                        break;
+                    }
+
+                    if (nuevoInv > invActual) {
+                        // Necesita más espacio en el almacén
+                        int diferencia = nuevoInv - invActual;
+                        if (validacionEspacio(diferencia) == 0) { // reutilizamos validacionEspacio
+                            System.out.println("No se pudo actualizar el inventario por falta de espacio.");
+                        } else {
+                            p.setInventario(nuevoInv);
+                            System.out.println("Inventario actualizado.");
+                        }
+                    } else {
+                        // Libera espacio en el almacén
+                        int liberar = invActual - nuevoInv;
+                        p.setInventario(nuevoInv);
+                        espacioAlmacenamiento += liberar; // estamos en la misma clase, podemos usar la variable
+                        System.out.println("Inventario actualizado. Espacio liberado: " + liberar);
+                        System.out.println("Espacio disponible en el almacén: " + espacioAlmacenamiento);
+                    }
+                    break;
+                }
+
+                case 5: // Fecha de reabastecimiento
+                    System.out.println("Fecha de reabastecimiento actual: " + p.getFechaReab());
+                    System.out.println("Ingrese la nueva fecha (dd/MM/yyyy) o 0 si no aplica:");
+                    String nuevaFechaReab = ingresoFecha();
+                    p.setFechaReab(nuevaFechaReab);
+                    System.out.println("Fecha de reabastecimiento actualizada.");
+                    break;
+
+                case 6: { // Tiempo de entrega
+                    System.out.println("Tiempo de entrega actual (días): " + p.getTiempoEntrega());
+                    int nuevoTiempo;
+                    while (true) {
+                        System.out.print("Nuevo tiempo de entrega (en días, >= 0): ");
+                        if (sc.hasNextInt()) {
+                            nuevoTiempo = sc.nextInt();
+                            sc.nextLine();
+                            if (nuevoTiempo >= 0) {
+                                break;
+                            } else {
+                                System.out.println("El tiempo no puede ser negativo.");
+                            }
+                        } else {
+                            System.out.println("Ingrese un número entero válido.");
+                            sc.next();
+                        }
+                    }
+                    p.setTiempoEntrega(nuevoTiempo);
+                    System.out.println("Tiempo de entrega actualizado.");
+                    break;
+                }
+
+                case 7:
+                    if (p instanceof ProductoComestible) {
+                        ProductoComestible pc = (ProductoComestible) p;
+                        System.out.println("Fecha de caducidad actual: " + pc.getFechaCaducidad());
+                        System.out.println("Ingrese la nueva fecha de caducidad (dd/MM/yyyy):");
+                        String nuevaCad = ingresoFecha();
+                        pc.setFechaCaducidad(nuevaCad);
+                        System.out.println("Fecha de caducidad actualizada.");
+                    } else if (p instanceof ProductoNoComestible) {
+                        ProductoNoComestible pnc = (ProductoNoComestible) p;
+                        System.out.println("Material actual: " + pnc.getMaterial());
+                        System.out.print("Nuevo material: ");
+                        String nuevoMat = sc.nextLine();
+                        pnc.setMaterial(nuevoMat);
+                        System.out.println("Material actualizado.");
+                    } else {
+                        System.out.println("Opción no válida para este tipo de producto.");
+                    }
+                    break;
+
+                case 8:
+                    if (p instanceof ProductoComestible) {
+                        ProductoComestible pc = (ProductoComestible) p;
+                        System.out.println("Requiere refrigeración actual: " +
+                                (pc.isRequiereRefrigeracion() ? "Sí" : "No"));
+                        System.out.print("¿Requiere refrigeración? (1. Sí / 2. No): ");
+                        int opRef = sc.nextInt();
+                        sc.nextLine();
+                        pc.setRequiereRefrigeracion(opRef == 1);
+                        System.out.println("Valor actualizado.");
+                    } else if (p instanceof ProductoNoComestible) {
+                        ProductoNoComestible pnc = (ProductoNoComestible) p;
+                        System.out.println("Almacenamiento especial actual: " +
+                                (pnc.isAlmacenamientoEspecial() ? "Sí" : "No"));
+                        System.out.print("¿Requiere almacenamiento especial? (1. Sí / 2. No): ");
+                        int opEsp = sc.nextInt();
+                        sc.nextLine();
+                        pnc.setAlmacenamientoEspecial(opEsp == 1);
+                        System.out.println("Valor actualizado.");
+                    } else {
+                        System.out.println("Opción no válida para este tipo de producto.");
+                    }
+                    break;
+
+                case 0:
+                    salir = true;
+                    break;
+
+                default:
+                    System.out.println("Opción inválida, intente de nuevo.");
+            }
+
+            System.out.println("\nEstado actual del producto:");
+            showProducto(idx);
+        }
+
+        System.out.println("Edición finalizada.");
+    }
 
 
 
@@ -397,6 +633,8 @@ public class Empresa {
         String fecha = "";
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         boolean esCorrecta = false;
+        LocalDate fechaHoy = LocalDate.now();
+        LocalDate fecha1;
 
         while (!esCorrecta) {
             System.out.print("Ingresa la fecha (dd/MM/yyyy) o 0 si no aplica: ");
@@ -404,13 +642,14 @@ public class Empresa {
 
             // Si el usuario no quiere ingresar fecha
             if (fecha.equals("0")) {
-                return fecha;   // o return ""; si prefieres dejarla vacía
+                return fecha;
             }
-
             try {
-                // Solo validamos el formato si no es "0"
-                LocalDate.parse(fecha, formato);
-                esCorrecta = true;          // formato correcto
+                fecha1 = LocalDate.parse(fecha, formato);
+                if(!fechaHoy.isBefore(fecha1)) {
+                    System.out.println("Fecha incorrecta");
+                    System.out.println("No pude ingresar un fecha anterior a " +  fechaHoy);
+                }else {esCorrecta = true;}
             } catch (DateTimeParseException e) {
                 System.out.println("Formato inválido. Ejemplo correcto: 23/02/2025");
             }

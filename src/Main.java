@@ -54,9 +54,7 @@ public class Main {
                                 b = false;
                                 break;
                             case 3:
-                                if (producto.isEmpty()){
-                                    System.out.println("No existe el productos");
-                                }else{ em.showProducto(-3);}
+                                em.showProducto(-3);
                                 b = false;
                                 break;
                             default:
@@ -67,7 +65,7 @@ public class Main {
                     }while (b);
                     break;
                 case 3:
-
+                    em.editarProductoPorId();
                     break;
                 case 4:
                     System.out.print("Ingrese el id del objeto que quiere eliminar: ");
