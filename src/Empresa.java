@@ -32,7 +32,6 @@ public class Empresa {
     /**Metodo de ingreso de productos*/
     public void creacionProducto(){
         System.out.println("\n\n--------Ingreso del producto--------");
-
         System.out.print("Ingrese el nombre: ");
         String nombre = sc.nextLine();
 
@@ -86,6 +85,7 @@ public class Empresa {
             System.out.print("Ingrese un precio: ");
             if (sc.hasNextDouble()) {
                 precio = sc.nextDouble();
+                sc.nextLine();
                 if (precio > 0 ) {
                     break;
                 } else {
@@ -96,8 +96,6 @@ public class Empresa {
                 sc.next();
             }
         }
-        sc.nextLine();
-
         System.out.print("Ingrese la descripción: ");
         String descripcion = sc.nextLine();
 
@@ -106,6 +104,7 @@ public class Empresa {
             System.out.print("Ingrese la cantidad de producto(disponible): ");
             if (sc.hasNextInt()) {
                 inventario = sc.nextInt();
+                sc.nextLine();
                 if (inventario > 0) {
                     break; // válido
                 } else {
@@ -118,26 +117,21 @@ public class Empresa {
         }
 
         // Validar espacio de almacenamiento
-        // Si NO hay espacio, se cancela el registro y se vuelve al menú
         boolean hayEspacio = (validacionEspacio(inventario) == 1);
-        sc.nextLine(); // limpiar salto de línea pendiente del nextInt
 
         if (!hayEspacio) {
             System.out.println("No hay suficiente espacio para almacenar esta cantidad.");
             System.out.println("El producto NO ha sido registrado. Volviendo al menú...");
             return;
         }
-
-        System.out.println("Ingrese la fecha de reabastecimiento del producto");
-        String fechaReab = ingresoFecha();
+        String fechaReab = "";
 
         // Elegir tipo de producto
         System.out.println("Seleccione el tipo de producto:");
         System.out.println("1. Comestible");
         System.out.println("2. No comestible");
-        System.out.println("3. General (sin tipo específico)");
         int tipo = 0;
-        while (tipo < 1 || tipo > 3) {
+        while (tipo != 1 && tipo != 2) {
             System.out.print("Opción: ");
             if (sc.hasNextInt()) {
                 tipo = sc.nextInt();
@@ -145,8 +139,8 @@ public class Empresa {
                 sc.next(); // limpiar
             }
         }
-        sc.nextLine(); // limpiar salto
 
+        sc.nextLine(); // limpiar salto
         Producto nuevoProducto;
 
         if (tipo == 1) {
@@ -162,6 +156,7 @@ public class Empresa {
                 System.out.print("Opción: ");
                 if (sc.hasNextInt()) {
                     opRef = sc.nextInt();
+                    sc.nextLine();
                 } else {
                     sc.next();
                 }
@@ -187,6 +182,7 @@ public class Empresa {
                 System.out.print("Opción: ");
                 if (sc.hasNextInt()) {
                     opAlm = sc.nextInt();
+                    sc.nextLine();
                 } else {
                     sc.next();
                 }
@@ -198,12 +194,8 @@ public class Empresa {
                     inventario, 0, fechaReab,
                     material, almacenamientoEspecial
             );
-        } else {
-            // Producto "normal"
-            nuevoProducto = new Producto(precio, nombre, id, descripcion, inventario, 0, fechaReab);
+            producto.add(nuevoProducto);
         }
-
-        producto.add(nuevoProducto);
         System.out.println("Producto registrado con éxito.");
     }
 
@@ -293,28 +285,62 @@ public class Empresa {
 
     }
 
+    /**Compra de inventario*/
+    public void comprarParaInventario() {
+        System.out.print("Ingrese el ID del producto a reabastecer: ");
+        String idBuscado = sc.nextLine();
 
+        int pos = busquedaId(idBuscado);
+        if (pos < 0) {
+            System.out.println("No se encontró un producto con ese ID.");
+            return;
+        }
+
+        Producto p = producto.get(pos);
+
+        System.out.print("¿Cuántas unidades va a agregar al inventario?: ");
+        int cantidad = sc.nextInt();
+        sc.nextLine();
+        if (validacionEspacio(cantidad) == 0){
+            System.out.println("No hay suficiente espacio disponoble para agregar el producto.");
+            return;
+        }
+        // Actualizar inventario
+        p.setInventario(p.getInventario() + cantidad);
+
+        // AHORA SÍ pedir la fecha de reabastecimiento
+        System.out.println("Ingrese la fecha de reabastecimiento de esta compra:");
+        String nuevaFechaReab = ingresoFecha();  // ya tienes este método
+        p.setFechaReab(nuevaFechaReab);
+
+        System.out.println("Compra registrada correctamente.");
+        System.out.println("Inventario actual: " + p.getInventario());
+        System.out.println("Fecha de reabastecimiento: " + p.getFechaReab());
+    }
 
 
     /**Metodos de validacion*/
     /**Validacion de fechas*/
     public String ingresoFecha() {
         String fecha = "";
-        LocalDate fechaValida = null;
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         boolean esCorrecta = false;
+
         while (!esCorrecta) {
-            System.out.print("Ingresa la fecha (dd/MM/yyyy): ");
-            fecha = sc.nextLine();
-            if (Integer.parseInt(fecha) == 0){
-                return fecha;
-            }else{
-                try {
-                    fechaValida = LocalDate.parse(fecha,formato);
-                    esCorrecta = true;
-                }catch (DateTimeParseException e){
-                    System.out.println("Formato inválido. Ejemplo correcto: 23/02/2025)");
-                }
+            System.out.print("Ingresa la fecha (dd/MM/yyyy) o 0 si no aplica: ");
+            fecha = sc.nextLine().trim();
+
+            // Si el usuario no quiere ingresar fecha
+            if (fecha.equals("0")) {
+                return fecha;   // o return ""; si prefieres dejarla vacía
+            }
+
+            try {
+                // Solo validamos el formato si no es "0"
+                LocalDate.parse(fecha, formato);
+                esCorrecta = true;          // formato correcto
+            } catch (DateTimeParseException e) {
+                System.out.println("Formato inválido. Ejemplo correcto: 23/02/2025");
             }
         }
         return fecha;

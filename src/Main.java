@@ -23,9 +23,10 @@ public class Main {
                             "4. Eliminar producto\n" +
                             "5. Capacidad del alamcen\n" +
                             "6. Compra de producto\n" +
-                            "7. Salir\n" +
-                            "Seleccione una opción: "
+                            "7. venta de producto\n" +
+                            "8. Salir\n"
             );
+            System.out.print("Seleccione una opción: ");
             opcion = sc.nextInt();
             sc.nextLine();
             switch (opcion){
@@ -56,7 +57,6 @@ public class Main {
                                 em.showProducto(-3);
                                 b = false;
                                 break;
-
                             default:
                                 System.out.println();
                                 System.out.println("Ingrese un numero entre 1-3");
@@ -73,9 +73,12 @@ public class Main {
                 case 5:
                     em.almacen();
                     break;
+                case 6:
+                    em.comprarParaInventario();
+                    break;
 
             }
-        }while (opcion != 7);
+        }while (opcion != 8);
         System.out.println("Saliendo...");
     }
 }
