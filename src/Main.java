@@ -54,7 +54,9 @@ public class Main {
                                 b = false;
                                 break;
                             case 3:
-                                em.showProducto(-3);
+                                if (producto.isEmpty()){
+                                    System.out.println("No existe el productos");
+                                }else{ em.showProducto(-3);}
                                 b = false;
                                 break;
                             default:
@@ -63,6 +65,9 @@ public class Main {
                                 break;
                         }
                     }while (b);
+                    break;
+                case 3:
+
                     break;
                 case 4:
                     System.out.print("Ingrese el id del objeto que quiere eliminar: ");
@@ -76,7 +81,9 @@ public class Main {
                 case 6:
                     em.comprarParaInventario();
                     break;
-
+                case 7:
+                    em.ventaProducto();
+                    break;
             }
         }while (opcion != 8);
         System.out.println("Saliendo...");

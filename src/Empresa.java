@@ -13,6 +13,7 @@ public class Empresa {
     public Empresa() {
         producto = new ArrayList<>();
         espacioAlmacenamiento = 600;
+        presupuesto = 200000.0;
         Producto pr = new Producto(23,"Cama","23232323","colchon",21,21,"23/02/2002");
         Producto pr2 = new Producto(23,"Cama","24242424","colchon",20,21,"23/02/2002");
         Producto pr3 = new Producto(23,"Gata","33233233","colchon",19,21,"23/02/2002");
@@ -262,6 +263,9 @@ public class Empresa {
             System.out.println("1.Si   |  2.No");
             if (sc.nextInt()== 1){
                 System.out.println("Producto removido con exito");
+                Producto p = producto.get(a);
+                int inv = p.getInventario();
+                espacioAlmacenamiento = espacioAlmacenamiento + inv;
                 producto.remove(a);
             }
         }else{
@@ -301,22 +305,90 @@ public class Empresa {
         System.out.print("¿Cuántas unidades va a agregar al inventario?: ");
         int cantidad = sc.nextInt();
         sc.nextLine();
-        if (validacionEspacio(cantidad) == 0){
-            System.out.println("No hay suficiente espacio disponoble para agregar el producto.");
+        //validacion del espacio diponible y cambio de la cantidad
+        if (validacionEspacio(cantidad) == 0) {
+            System.out.println("No hay suficiente espacio disponible para agregar el producto.");
             return;
         }
+        if (!validarPresupuesto(cantidad,p.getPrecio())){
+            return;
+        }
+
         // Actualizar inventario
         p.setInventario(p.getInventario() + cantidad);
 
         // AHORA SÍ pedir la fecha de reabastecimiento
         System.out.println("Ingrese la fecha de reabastecimiento de esta compra:");
-        String nuevaFechaReab = ingresoFecha();  // ya tienes este método
+        String nuevaFechaReab = ingresoFecha();
         p.setFechaReab(nuevaFechaReab);
 
         System.out.println("Compra registrada correctamente.");
         System.out.println("Inventario actual: " + p.getInventario());
         System.out.println("Fecha de reabastecimiento: " + p.getFechaReab());
     }
+
+    /**Venta de producto*/
+    public void ventaProducto() {
+        System.out.print("Ingrese el ID del producto que desea vender: ");
+        String id = sc.nextLine();
+
+        int idx = busquedaId(id);
+        if (idx == -1) {
+            System.out.println("No existe un producto con ese ID.");
+            return;
+        }
+
+        Producto p = producto.get(idx);
+        System.out.println("Producto encontrado:");
+        System.out.println(p);
+
+        // Pedir cantidad a vender con validación
+        int cantidad = 0;
+        while (true) {
+            System.out.print("Ingrese la cantidad a vender: ");
+            if (sc.hasNextInt()) {
+                cantidad = sc.nextInt();
+                sc.nextLine();
+                if (cantidad > 0) {
+                    break;
+                } else {
+                    System.out.println("La cantidad debe ser mayor que 0.");
+                }
+            } else {
+                System.out.println("Error: ingrese un número entero válido.");
+                sc.next(); // limpiar basura
+            }
+        }
+
+        // Verificar stock
+        if (cantidad > p.getInventario()) {
+            System.out.println("No hay suficiente stock para realizar la venta.");
+            System.out.println("Stock disponible: " + p.getInventario());
+            return;
+        }
+
+        // Actualizar inventario
+        p.setInventario(p.getInventario() - cantidad);
+
+        // Liberar espacio en el almacén
+        espacioAlmacenamiento += cantidad;
+
+        // Actualizar presupuesto con la venta
+        if (presupuesto == null) {
+            presupuesto = 0.0;
+        }
+        double ingreso = cantidad * p.getPrecio();
+        presupuesto += ingreso;
+
+        System.out.println("Venta realizada con éxito.");
+        System.out.println("Unidades vendidas: " + cantidad);
+        System.out.println("Inventario restante: " + p.getInventario());
+        System.out.println("Ingreso generado: " + ingreso);
+        System.out.println("Presupuesto actual: " + presupuesto);
+        System.out.println("Espacio disponible en el almacén: " + espacioAlmacenamiento);
+    }
+
+
 
 
     /**Metodos de validacion*/
@@ -356,6 +428,17 @@ public class Empresa {
             System.out.println("El espacio disponible es de " + espacioAlmacenamiento);
             return 0;
         }
+    }
+
+    public boolean  validarPresupuesto(int cantidad,double precioUnitario) {
+        if (presupuesto < cantidad * precioUnitario) {
+            System.out.println("No hay presupuesto disponible para agregar el producto.");
+            System.out.println("Costo total: " + cantidad * precioUnitario);
+            System.out.println("Presupuesto disponible: " + presupuesto);
+            return false;
+        }
+        System.out.println("Compra válida. Costo total: " + cantidad * precioUnitario);
+        return true;
     }
 
 
