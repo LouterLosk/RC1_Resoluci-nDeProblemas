@@ -22,7 +22,8 @@ public class Main {
                             "3. Editar producto\n" +
                             "4. Eliminar producto\n" +
                             "5. Capacidad del alamcen\n" +
-                            "6. Salir\n" +
+                            "6. Compra de producto\n" +
+                            "7. Salir\n" +
                             "Seleccione una opción: "
             );
             opcion = sc.nextInt();
@@ -66,6 +67,7 @@ public class Main {
                 case 4:
                     System.out.print("Ingrese el id del objeto que quiere eliminar: ");
                     producto = sc.nextLine();
+                    System.out.println(em.busquedaId(producto));
                     em.eliminarProducto(em.busquedaId(producto));
                     break;
                 case 5:
@@ -73,7 +75,7 @@ public class Main {
                     break;
 
             }
-        }while (opcion != 6);
+        }while (opcion != 7);
         System.out.println("Saliendo...");
     }
 }

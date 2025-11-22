@@ -12,7 +12,7 @@ public class Empresa {
 
     public Empresa() {
         producto = new ArrayList<>();
-        espacioAlmacenamiento = 500;
+        espacioAlmacenamiento = 600;
         Producto pr = new Producto(23,"Cama","23232323","colchon",21,21,"23/02/2002");
         Producto pr2 = new Producto(23,"Cama","24242424","colchon",20,21,"23/02/2002");
         Producto pr3 = new Producto(23,"Gata","33233233","colchon",19,21,"23/02/2002");
@@ -28,7 +28,7 @@ public class Empresa {
     /**Metodos propios*/
     /**Metodo de ingreso de productos*/
     public void creacionProducto(){
-        System.out.println("\n\n========Ingreso del producto========");
+        System.out.println("\n\n--------Ingreso del producto--------");
         double precio;
         while (true) {
             System.out.print("Ingrese un precio: ");
@@ -36,8 +36,8 @@ public class Empresa {
                 precio = sc.nextDouble();
                 if (precio > 0 ) {
                     break;
-                }else{
-                    System.out.println("El numero debe ser positivo");
+                } else {
+                    System.out.println("El número debe ser positivo");
                 }
             } else {
                 System.out.println("Error: ingrese un número válido.");
@@ -46,7 +46,7 @@ public class Empresa {
         }
         sc.nextLine();
 
-        System.out.println("Ingrese el nombre");
+        System.out.print("Ingrese el nombre: ");
         String nombre = sc.nextLine();
 
         String id;
@@ -66,19 +66,40 @@ public class Empresa {
                 continue;
             }
 
+            // Validar que solo contenga dígitos
+            boolean soloDigitos = true;
+            for (int i = 0; i < id.length(); i++) {
+                if (!Character.isDigit(id.charAt(i))) {
+                    soloDigitos = false;
+                    break;
+                }
+            }
+            if (!soloDigitos) {
+                System.out.println("Error: el ID solo debe contener números.");
+                continue;
+            }
+
             // Validar que sea positivo
             if (Long.parseLong(id) <= 0) {
                 System.out.println("Error: el ID debe ser un número positivo.");
                 continue;
             }
+
+            // Validar que no exista otro producto con el mismo ID
+            if (busquedaId(id) != -1) {
+                System.out.println("Error: ya existe un producto con ese ID.");
+                continue;
+            }
+
             break; // ID válido
         }
-        
-        System.out.println("Ingrese la descripcion");
+
+        System.out.print("Ingrese la descripción: ");
         String descripcion = sc.nextLine();
+
         int inventario;
         while (true) {
-            System.out.println("Ingrese la cantida de producto");
+            System.out.print("Ingrese la cantidad de producto: ");
             if (sc.hasNextInt()) {
                 inventario = sc.nextInt();
                 if (inventario > 0) {
@@ -87,38 +108,96 @@ public class Empresa {
                     System.out.println("Error: el número debe ser positivo.");
                 }
             } else {
-                System.out.println("Error: debe ingresar un número entero.");
-                sc.next();
+                System.out.println("Error: ingrese un número entero válido.");
+                sc.next(); // limpiar buffer
             }
         }
-        while (validacionEspacio(inventario) != 1){
-            System.out.println("Ingrese la cantida de producto");
+
+        // Validar espacio de almacenamiento
+        while (validacionEspacio(inventario) != 1) {
+            System.out.println("No hay suficiente espacio, ingrese nuevamente la cantidad de producto: ");
             inventario = sc.nextInt();
             validacionEspacio(inventario);
-        };
-
-        System.out.println("Ingrese el tiempo de entrega(En dias)");
-        int tiempoEntrega;
-        while (true) {
-            System.out.println("Ingrese la cantida de producto");
-            if (sc.hasNextInt()) {
-                tiempoEntrega = sc.nextInt();
-                if (tiempoEntrega > 0) {
-                    break; // válido
-                } else {
-                    System.out.println("Error: el número debe ser positivo.");
-                }
-            } else {
-                System.out.println("Error: debe ingresar un número entero.");
-                sc.next();
-            }
         }
-        sc.nextLine();
+        sc.nextLine(); // limpiar salto de línea
 
         System.out.println("Ingrese la fecha de reabastecimiento del producto");
         String fechaReab = ingresoFecha();
 
-        producto.add(new Producto(precio,nombre,id,descripcion,inventario,tiempoEntrega,fechaReab));
+        // Elegir tipo de producto
+        System.out.println("Seleccione el tipo de producto:");
+        System.out.println("1. Comestible");
+        System.out.println("2. No comestible");
+        System.out.println("3. General (sin tipo específico)");
+        int tipo = 0;
+        while (tipo < 1 || tipo > 3) {
+            System.out.print("Opción: ");
+            if (sc.hasNextInt()) {
+                tipo = sc.nextInt();
+            } else {
+                sc.next(); // limpiar
+            }
+        }
+        sc.nextLine(); // limpiar salto
+
+        Producto nuevoProducto;
+
+        if (tipo == 1) {
+            // Datos específicos de comestible
+            System.out.println("Ingrese la fecha de caducidad del producto comestible:");
+            String fechaCaducidad = ingresoFecha();
+
+            System.out.println("¿Requiere refrigeración?");
+            System.out.println("1. Sí   |  2. No");
+            boolean requiereRefrigeracion = false;
+            int opRef = 0;
+            while (opRef != 1 && opRef != 2) {
+                System.out.print("Opción: ");
+                if (sc.hasNextInt()) {
+                    opRef = sc.nextInt();
+                } else {
+                    sc.next();
+                }
+            }
+            requiereRefrigeracion = (opRef == 1);
+
+            nuevoProducto = new ProductoComestible(
+                    precio, nombre, id, descripcion,
+                    inventario, 0, fechaReab,
+                    fechaCaducidad, requiereRefrigeracion
+            );
+
+        } else if (tipo == 2) {
+            // Datos específicos de no comestible
+            System.out.print("Ingrese el material del producto: ");
+            String material = sc.nextLine();
+
+            System.out.println("¿Requiere almacenamiento especial?");
+            System.out.println("1. Sí   |  2. No");
+            boolean almacenamientoEspecial = false;
+            int opAlm = 0;
+            while (opAlm != 1 && opAlm != 2) {
+                System.out.print("Opción: ");
+                if (sc.hasNextInt()) {
+                    opAlm = sc.nextInt();
+                } else {
+                    sc.next();
+                }
+            }
+            almacenamientoEspecial = (opAlm == 1);
+
+            nuevoProducto = new ProductoNoComestible(
+                    precio, nombre, id, descripcion,
+                    inventario, 0, fechaReab,
+                    material, almacenamientoEspecial
+            );
+        } else {
+            // Producto "normal"
+            nuevoProducto = new Producto(precio, nombre, id, descripcion, inventario, 0, fechaReab);
+        }
+
+        producto.add(nuevoProducto);
+        System.out.println("Producto registrado con éxito.");
     }
 
     /**Metodo de mustra del producto*/
@@ -176,13 +255,17 @@ public class Empresa {
     }
     /**Metodo de eliminacion del producto por su id*/
     public void eliminarProducto(int a){
-        System.out.println("Usted quire eliminar el objero: ");
-        showProducto(a);
-        System.out.println("Esta seguro?");
-        System.out.println("1.Si   |  2.No");
-        if (sc.nextInt()== 1){
-            System.out.println("Producto removido con exito");
-            producto.remove(a);
+        if (a != -1 ){
+            System.out.println("Usted quire eliminar el objeto: ");
+            showProducto(a);
+            System.out.println("Esta seguro?");
+            System.out.println("1.Si   |  2.No");
+            if (sc.nextInt()== 1){
+                System.out.println("Producto removido con exito");
+                producto.remove(a);
+            }
+        }else{
+            System.out.println("No existe ese id");
         }
     }
     /**Almacen*/
@@ -232,15 +315,12 @@ public class Empresa {
     public int validacionEspacio(int a){
         int temp = espacioAlmacenamiento;
         espacioAlmacenamiento = espacioAlmacenamiento - a;
-        if (espacioAlmacenamiento > 0){
-            System.out.println(a);
-            System.out.println(espacioAlmacenamiento);
+        if (espacioAlmacenamiento >= 0){
             return 1;
-        }else{System.out.println(a);
-
-            System.out.println("Menos"+espacioAlmacenamiento);
+        }else{
+            System.out.println("No puede ingresar mas productos");
             espacioAlmacenamiento = temp;
-            System.out.println(espacioAlmacenamiento);
+            System.out.println("El espacio disponible es de " + espacioAlmacenamiento);
             return 0;
         }
     }
