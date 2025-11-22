@@ -3,9 +3,7 @@ public class ProductoComestible extends Producto {
     private String fechaCaducidad;
     private boolean requiereRefrigeracion;
 
-    public ProductoComestible(double precio, String nombre, String id, String descripcion,
-                              int inventario, int tiempoEntrega, String fechaReab,
-                              String fechaCaducidad, boolean requiereRefrigeracion) {
+    public ProductoComestible(double precio, String nombre, String id, String descripcion, int inventario, int tiempoEntrega, String fechaReab, String fechaCaducidad, boolean requiereRefrigeracion) {
         super(precio, nombre, id, descripcion, inventario, tiempoEntrega, fechaReab);
         this.fechaCaducidad = fechaCaducidad;
         this.requiereRefrigeracion = requiereRefrigeracion;

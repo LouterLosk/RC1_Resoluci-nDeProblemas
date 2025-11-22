@@ -16,12 +16,15 @@ public class Empresa {
         Producto pr = new Producto(23,"Cama","23232323","colchon",21,21,"23/02/2002");
         Producto pr2 = new Producto(23,"Cama","24242424","colchon",20,21,"23/02/2002");
         Producto pr3 = new Producto(23,"Gata","33233233","colchon",19,21,"23/02/2002");
+        ProductoComestible pnc = new ProductoComestible(23,"Helado","2233","es un helado",23,23,"20/10/2001","10/20/2030",true);
         validacionEspacio(pr.getInventario());
         validacionEspacio(pr2.getInventario());
         validacionEspacio(pr3.getInventario());
+        validacionEspacio(pnc.getInventario());
         producto.add(pr);
         producto.add(pr2);
         producto.add(pr3);
+        producto.add(pnc);
     }
 
 
@@ -29,22 +32,6 @@ public class Empresa {
     /**Metodo de ingreso de productos*/
     public void creacionProducto(){
         System.out.println("\n\n--------Ingreso del producto--------");
-        double precio;
-        while (true) {
-            System.out.print("Ingrese un precio: ");
-            if (sc.hasNextDouble()) {
-                precio = sc.nextDouble();
-                if (precio > 0 ) {
-                    break;
-                } else {
-                    System.out.println("El número debe ser positivo");
-                }
-            } else {
-                System.out.println("Error: ingrese un número válido.");
-                sc.next();
-            }
-        }
-        sc.nextLine();
 
         System.out.print("Ingrese el nombre: ");
         String nombre = sc.nextLine();
@@ -94,12 +81,29 @@ public class Empresa {
             break; // ID válido
         }
 
+        double precio;
+        while (true) {
+            System.out.print("Ingrese un precio: ");
+            if (sc.hasNextDouble()) {
+                precio = sc.nextDouble();
+                if (precio > 0 ) {
+                    break;
+                } else {
+                    System.out.println("El número debe ser positivo");
+                }
+            } else {
+                System.out.println("Error: ingrese un número válido.");
+                sc.next();
+            }
+        }
+        sc.nextLine();
+
         System.out.print("Ingrese la descripción: ");
         String descripcion = sc.nextLine();
 
         int inventario;
         while (true) {
-            System.out.print("Ingrese la cantidad de producto: ");
+            System.out.print("Ingrese la cantidad de producto(disponible): ");
             if (sc.hasNextInt()) {
                 inventario = sc.nextInt();
                 if (inventario > 0) {
@@ -114,12 +118,15 @@ public class Empresa {
         }
 
         // Validar espacio de almacenamiento
-        while (validacionEspacio(inventario) != 1) {
-            System.out.println("No hay suficiente espacio, ingrese nuevamente la cantidad de producto: ");
-            inventario = sc.nextInt();
-            validacionEspacio(inventario);
+        // Si NO hay espacio, se cancela el registro y se vuelve al menú
+        boolean hayEspacio = (validacionEspacio(inventario) == 1);
+        sc.nextLine(); // limpiar salto de línea pendiente del nextInt
+
+        if (!hayEspacio) {
+            System.out.println("No hay suficiente espacio para almacenar esta cantidad.");
+            System.out.println("El producto NO ha sido registrado. Volviendo al menú...");
+            return;
         }
-        sc.nextLine(); // limpiar salto de línea
 
         System.out.println("Ingrese la fecha de reabastecimiento del producto");
         String fechaReab = ingresoFecha();
@@ -253,6 +260,7 @@ public class Empresa {
         }
         return -1;
     }
+
     /**Metodo de eliminacion del producto por su id*/
     public void eliminarProducto(int a){
         if (a != -1 ){
@@ -268,6 +276,7 @@ public class Empresa {
             System.out.println("No existe ese id");
         }
     }
+
     /**Almacen*/
     public void almacen(){
         String nombre;
@@ -289,7 +298,6 @@ public class Empresa {
 
     /**Metodos de validacion*/
     /**Validacion de fechas*/
-
     public String ingresoFecha() {
         String fecha = "";
         LocalDate fechaValida = null;
@@ -318,12 +326,14 @@ public class Empresa {
         if (espacioAlmacenamiento >= 0){
             return 1;
         }else{
-            System.out.println("No puede ingresar mas productos");
             espacioAlmacenamiento = temp;
             System.out.println("El espacio disponible es de " + espacioAlmacenamiento);
             return 0;
         }
     }
+
+
+
 
     /**Metodos de java*/
     public Double getPresupuesto() {
