@@ -16,20 +16,14 @@ public class Empresa {
         producto = new ArrayList<>();
         espacioAlmacenamiento = 600;
         presupuesto = 200000.0;
-        Producto pr = new Producto(23,"Cama","23232323","colchon",21,0,"23/02/2002");
-        Producto pr2 = new Producto(23,"Cama","24242424","colchon",20,0,"23/02/2002");
-        Producto pr3 = new Producto(23,"Gata","33233233","colchon",19,0,"23/02/2002");
-        ProductoComestible pnc = new ProductoComestible(23,"Helado","2233","es un helado",23,0,"20/10/2001","10/20/2030",true);
-        validacionEspacio(pr.getInventario());
-        validacionEspacio(pr2.getInventario());
-        validacionEspacio(pr3.getInventario());
-        validacionEspacio(pnc.getInventario());
-        producto.add(pr);
-        producto.add(pr2);
-        producto.add(pr3);
-        producto.add(pnc);
-    }
+//        ProductoComestible pc = new ProductoComestible(23,"Helado","2233","es un helado",23,0,"20/10/2001","10/20/2030",true);
+//        validacionEspacio(pc.getInventario());
+//        producto.add(pc);
+//        ProductoNoComestible pcn = new ProductoNoComestible(23,"Cama","242424","colchon",20,0,"23/02/2002","plumas",false);
+//        validacionEspacio(pcn.getInventario());
+//        producto.add(pcn);
 
+    }
 
     /**Metodos propios*/
     /**Metodo de ingreso de productos*/
@@ -79,7 +73,6 @@ public class Empresa {
                 System.out.println("Error: ya existe un producto con ese ID.");
                 continue;
             }
-
             break; // ID válido
         }
 
@@ -139,11 +132,11 @@ public class Empresa {
             if (sc.hasNextInt()) {
                 tipo = sc.nextInt();
             } else {
-                sc.next(); // limpiar
+                sc.next();
             }
         }
 
-        sc.nextLine(); // limpiar salto
+        sc.nextLine();
         Producto nuevoProducto;
 
         if (tipo == 1) {
@@ -165,12 +158,7 @@ public class Empresa {
                 }
             }
             requiereRefrigeracion = (opRef == 1);
-
-            nuevoProducto = new ProductoComestible(
-                    precio, nombre, id, descripcion,
-                    inventario, 0, fechaReab,
-                    fechaCaducidad, requiereRefrigeracion
-            );
+            nuevoProducto = new ProductoComestible(precio, nombre, id, descripcion, inventario, 0, fechaReab, fechaCaducidad, requiereRefrigeracion);
 
         } else if (tipo == 2) {
             // Datos específicos de no comestible
@@ -180,7 +168,7 @@ public class Empresa {
             System.out.println("¿Requiere almacenamiento especial?");
             System.out.println("1. Sí   |  2. No");
             boolean almacenamientoEspecial = false;
-            int opAlm = 0;
+            int opAlm = 0; //Opcion de almacenamiento
             while (opAlm != 1 && opAlm != 2) {
                 System.out.print("Opción: ");
                 if (sc.hasNextInt()) {
@@ -212,12 +200,12 @@ public class Empresa {
             if (producto.isEmpty()){
                 System.out.println("No hay productos almacenados.");
             }else{ for (int i = 0; i<producto.size();i++){
-                System.out.println(producto.get(i));
+                System.out.println(producto.get(i).toString());
             }
                 return;}
         }
         try {
-            System.out.println(producto.get(a));
+            System.out.println(producto.get(a).toString());
         }catch (IndexOutOfBoundsException e){
             System.out.println("Error: No existe un producto con esa descripcion.\n");
         }
@@ -310,7 +298,7 @@ public class Empresa {
         System.out.print("¿Cuántas unidades va a agregar al inventario?: ");
         int cantidad = sc.nextInt();
         sc.nextLine();
-        //validacion del espacio diponible y cambio de la cantidad
+        //validacion del espacio diponible
         if (validacionEspacio(cantidad) == 0) {
             System.out.println("No hay suficiente espacio disponible para agregar el producto.");
             return;
@@ -322,14 +310,15 @@ public class Empresa {
         // Actualizar inventario
         p.setInventario(p.getInventario() + cantidad);
 
-        // AHORA SÍ pedir la fecha de reabastecimiento
+        // pedir la fecha de reabastecimiento
         System.out.println("Ingrese la fecha de reabastecimiento de esta compra:");
         String nuevaFechaReab = ingresoFecha();
         p.setFechaReab(nuevaFechaReab);
+        //valída que la fecha de ingreso no sea antes de la fecha actual
         DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate FechaReab = LocalDate.parse(nuevaFechaReab,f);
         LocalDate fechaHoy = LocalDate.now();
-
+        //se usa la variable en long, este metodo solo funciona con long
         long dias = ChronoUnit.DAYS.between(fechaHoy, FechaReab);
         p.setTiempoEntrega((int)dias);
         System.out.println("Compra registrada correctamente.");
@@ -367,7 +356,7 @@ public class Empresa {
                 }
             } else {
                 System.out.println("Error: ingrese un número entero válido.");
-                sc.next(); // limpiar basura
+                sc.next();
             }
         }
 
@@ -678,34 +667,6 @@ public class Empresa {
         }
         System.out.println("Compra válida. Costo total: " + cantidad * precioUnitario);
         return true;
-    }
-
-
-
-
-    /**Metodos de java*/
-    public Double getPresupuesto() {
-        return presupuesto;
-    }
-
-    public void setPresupuesto(Double presupuesto) {
-        this.presupuesto = presupuesto;
-    }
-
-    public int getEspacioAlmacenamiento() {
-        return espacioAlmacenamiento;
-    }
-
-    public void setEspacioAlmacenamiento(int espacioAlmacenamiento) {
-        this.espacioAlmacenamiento = espacioAlmacenamiento;
-    }
-
-    public ArrayList<Producto> getProducto() {
-        return producto;
-    }
-
-    public void setProducto(ArrayList<Producto> producto) {
-        this.producto = producto;
     }
 
 }

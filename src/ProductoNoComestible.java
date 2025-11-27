@@ -3,9 +3,7 @@ public class ProductoNoComestible extends Producto {
     private String material;
     private boolean almacenamientoEspecial;
 
-    public ProductoNoComestible(double precio, String nombre, String id, String descripcion,
-                                int inventario, int tiempoEntrega, String fechaReab,
-                                String material, boolean almacenamientoEspecial) {
+    public ProductoNoComestible(double precio, String nombre, String id, String descripcion, int inventario, int tiempoEntrega, String fechaReab, String material, boolean almacenamientoEspecial) {
         super(precio, nombre, id, descripcion, inventario, tiempoEntrega, fechaReab);
         this.material = material;
         this.almacenamientoEspecial = almacenamientoEspecial;
@@ -29,8 +27,8 @@ public class ProductoNoComestible extends Producto {
 
     @Override
     public String toString() {
-        return super.toString()
-                + " | Material: " + material
-                + " | Especial: " + (almacenamientoEspecial ? "Sí" : "No");
+        return super.toString() +
+                "\n\nProducto No comestible "
+                + "\nMaterial: " + material + " | Almacenamiento Especial: " + (almacenamientoEspecial ? "Sí" : "No");
     }
 }

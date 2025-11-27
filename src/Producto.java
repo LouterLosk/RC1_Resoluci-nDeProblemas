@@ -19,15 +19,12 @@ public class Producto{
 
     @Override
     public String toString() {
-        return "Producto{" +
-                "precio=" + precio +
-                ", nombre='" + nombre + '\'' +
-                ", id='" + id + '\'' +
-                ", descripcion='" + descripcion + '\'' +
-                ", inventario=" + inventario +
-                ", tiempoEntrega=" + tiempoEntrega +
-                ", fechaReab='" + fechaReab + '\'' +
-                '}';
+        return "\nProducto" + "\n" +
+                "Nombre: " + nombre + " | ID: " + id + "\n" +
+                "Precio: " + precio +"$"+ "\n" +
+                "Descripcion: " + descripcion + "\n" +
+                "Inventario: " + inventario + "\n" +
+                "Tiempo de Entrega: " + tiempoEntrega + " | Fecha Reabastecimiento: " + fechaReab;
     }
 
     /**Metodos de java*/
@@ -50,10 +47,6 @@ public class Producto{
 
     public String getId() {
         return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getDescripcion() {

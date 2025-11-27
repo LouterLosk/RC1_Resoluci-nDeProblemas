@@ -25,10 +25,15 @@ public class ProductoComestible extends Producto {
         this.requiereRefrigeracion = requiereRefrigeracion;
     }
 
-    @Override
     public String toString() {
-        return super.toString()
-                + " | Caduca: " + fechaCaducidad
-                + " | Refrigeración: " + (requiereRefrigeracion ? "Sí" : "No");
+        return super.toString() +
+                "\n\nProducto comestible" +
+                "\nCaduca: " + fechaCaducidad + " | Refrigeración: " + (requiereRefrigeracion ? "Sí" : "No");
     }
+
+
+
+
+
+
 }
